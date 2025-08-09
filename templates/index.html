@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Backtest Signal</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .signal-buy { color: #10b981; }
+        .signal-sell { color: #ef4444; }
+        .loading { display: none; }
+        .loading.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Crypto Backtest Signal</h1>
+        
+        <!-- Control Panel -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Trading Parameters</h2>
+            
+            <!-- Strategy Settings -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-4 text-gray-600">Strategy Settings</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">MACD Fast Length</label>
+                        <input type="number" id="macd_fast" value="12" min="1" max="50" step="1" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">MACD Slow Length</label>
+                        <input type="number" id="macd_slow" value="26" min="1" max="100" step="1" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">MACD Signal Length</label>
+                        <input type="number" id="macd_signal" value="9" min="1" max="50" step="1" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">SMA Length</label>
+                        <input type="number" id="sma_length" value="200" min="50" max="500" step="1" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TP/SL Settings -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-4 text-gray-600">TP/SL Settings</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">TP Base (%)</label>
+                        <input type="number" id="tp_base" value="0.75" min="0.1" max="10" step="0.05" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Stop Loss (%)</label>
+                        <input type="number" id="stop_loss" value="1.50" min="0.1" max="10" step="0.05" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max TPs</label>
+                        <input type="number" id="max_tps" value="10" min="1" max="20" step="1" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">TP Close (%)</label>
+                        <input type="number" id="tp_close" value="25" min="10" max="100" step="5" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trading Parameters -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4 text-gray-600">Trading Parameters</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Symbol Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Trading Symbol</label>
+                    <div class="space-y-2">
+                        <select id="symbol" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Loading symbols...</option>
+                        </select>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="fetchAllSymbols" class="rounded">
+                            <label for="fetchAllSymbols" class="text-sm text-gray-600">Fetch All Symbols (Bulk Backtest)</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Interval Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Time Interval</label>
+                    <select id="interval" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="1h">1 Hour</option>
+                        <option value="4h">4 Hours</option>
+                        <option value="1d">1 Day</option>
+                        <option value="15m">15 Minutes</option>
+                        <option value="30m">30 Minutes</option>
+						<option value="1m">1 Minutes</option>
+                    </select>
+                </div>
+                
+                <!-- Date Range -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                    <div class="flex space-x-2">
+                        <input type="date" id="start_date" class="flex-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="date" id="end_date" class="flex-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+                
+                <!-- Leverage -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Leverage</label>
+                    <input type="number" id="leverage" value="10" min="1" max="125" step="1" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <!-- Margin -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Margin (%)</label>
+                    <input type="number" id="margin" value="10" min="1" max="100" step="1" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <!-- Balance -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Initial Balance (USDT)</label>
+                    <input type="number" id="balance" value="10000" min="1000" step="1000" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+            </div>
+            
+            <div class="mt-6 text-center">
+                <button id="runBacktest" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 transform hover:scale-105">
+                    Run Backtest
+                </button>
+                <button id="stopBacktest" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 transform hover:scale-105 hidden ml-4">
+                    Stop Backtest
+                </button>
+            </div>
+            
+            <div id="loading" class="loading text-center mt-4">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="mt-2 text-gray-600" id="loadingText">Running backtest...</p>
+                <div id="progressInfo" class="mt-2 text-sm text-gray-500 hidden">
+                    <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <span id="progressText">0 / 0 symbols processed</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Panel -->
+        <div id="resultsPanel" class="hidden">
+            <!-- Bulk Results Table -->
+            <div id="bulkResultsSection" class="bg-white rounded-lg shadow-lg p-6 mb-8 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-700">Bulk Backtest Results</h2>
+                    <div class="flex items-center space-x-4">
+                        <span id="totalResultsCount" class="text-sm text-gray-600">0 results</span>
+                        <button id="exportResults" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                            Export CSV
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Filter and Sort Controls -->
+                <div class="mb-4 flex flex-wrap gap-4 items-center">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Sort by</label>
+                        <select id="sortBy" class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            <option value="total_return">Total Return</option>
+                            <option value="win_rate">Win Rate</option>
+                            <option value="total_trades">Total Trades</option>
+                            <option value="max_drawdown">Max Drawdown</option>
+                            <option value="symbol">Symbol</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Order</label>
+                        <select id="sortOrder" class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            <option value="desc">Descending</option>
+                            <option value="asc">Ascending</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Filter</label>
+                        <input type="text" id="symbolFilter" placeholder="Filter by symbol..." class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Results Table -->
+                <div class="overflow-x-auto">
+                    <table id="bulkResultsTable" class="min-w-full table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">#</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Symbol</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Total Return (%)</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Win Rate (%)</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Total Trades</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Final Balance</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Max Drawdown (%)</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bulkResultsTableBody">
+                            <!-- Results will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div id="paginationContainer" class="flex justify-center items-center space-x-2 mt-6">
+                    <!-- Pagination will be populated here -->
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div id="singleResultSection" class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-semibold mb-6 text-gray-700">Backtest Results</h2>
+                <div id="statistics" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Statistics will be populated here -->
+                </div>
+            </div>
+            
+            <!-- Chart -->
+            <div id="chartSection" class="bg-white rounded-lg shadow-lg p-2 mb-8 w-full">
+                <h2 class="text-2xl font-semibold mb-6 text-gray-700">Price Chart with Signals</h2>
+                <div id="chart" style="height: 1000px; width: 100%; min-width: 100%;"></div>
+            </div>
+            
+            <!-- Trades Table -->
+            <div id="tradesSection" class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-6 text-gray-700">Trade History</h2>
+                <div class="overflow-x-auto">
+                    <table id="tradesTable" class="min-w-full table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-700">#</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Entry Time</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Exit Time</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Position</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Entry Price</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Exit Price</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Exit Reason</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">PnL</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesTableBody">
+                            <!-- Trades will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/api-service.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chart-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/results-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

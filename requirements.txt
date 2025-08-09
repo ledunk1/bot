@@ -1,0 +1,12 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+requests==2.31.0
+pandas==2.0.3
+numpy==1.24.3
+plotly==5.17.0
+python-binance==1.0.19
+kaleido
+python-dotenv==1.0.0
+psutil==5.9.5
+websocket-client
+psutil==5.9.5

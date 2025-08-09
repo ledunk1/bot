@@ -1,0 +1,26 @@
+{
+  "auto_trading": {
+    "enabled": false,
+    "max_symbols": 1,
+    "leverage": 10,
+    "margin_percent": 50,
+    "min_winrate": 80,
+    "min_pnl": 250,
+    "max_drawdown": 60
+  },
+  "manual_trading": {
+    "enabled": true,
+    "leverage": 10,
+    "margin_percent": 50
+  },
+  "risk_management": {
+    "max_daily_loss": 10,
+    "max_positions": 3,
+    "stop_trading_on_loss": true
+  },
+  "api_settings": {
+    "production_only": true,
+    "api_key_configured": true,
+    "api_secret_configured": true
+  }
+}

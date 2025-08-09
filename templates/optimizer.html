@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Crypto Optimizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-running { background-color: #10b981; animation: pulse 2s infinite; }
+        .status-stopped { background-color: #ef4444; }
+        .status-completed { background-color: #3b82f6; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .result-card {
+            transition: all 0.3s ease;
+        }
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">Enhanced Crypto Optimizer</h1>
+            <div class="flex space-x-4">
+                <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                    Backtest
+                </a>
+                <a href="/live" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                    Live Scanner
+                </a>
+            </div>
+        </div>
+
+        <!-- Per-Coin Optimizer Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-700">Per-Coin Bulk Optimizer</h2>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <span id="perCoinStatus" class="status-indicator status-stopped"></span>
+                        <span class="text-sm text-gray-600">Status: <span id="perCoinStatusText">Stopped</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Symbol Selection -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4">Symbol Selection</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Selection Mode</label>
+                        <select id="symbolSelection" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            <option value="top_10">Top 10 Popular Symbols</option>
+                            <option value="top_20">Top 20 Popular Symbols</option>
+                            <option value="top_50" selected>Top 50 Popular Symbols</option>
+                            <option value="top_100">Top 100 Popular Symbols</option>
+                            <option value="all">All Available Symbols</option>
+                            <option value="custom">Custom Symbol List</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max Workers (Parallel Processing)</label>
+                        <input type="number" id="maxWorkers" value="8" min="1" max="16" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Higher = faster but more CPU usage</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Batch Size</label>
+                        <input type="number" id="batchSize" value="20" min="5" max="50" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Symbols processed simultaneously</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Symbols Input -->
+            <div id="customSymbolsDiv" class="mb-6 hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Custom Symbols (comma separated)</label>
+                <textarea id="customSymbols" placeholder="BTCUSDT,ETHUSDT,ADAUSDT,SOLUSDT,DOTUSDT" rows="3" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
+            <!-- Optimization Parameters -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4">Optimization Parameters</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Date Range -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                        <div class="flex space-x-2">
+                            <input type="date" id="startDate" class="flex-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            <input type="date" id="endDate" class="flex-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <!-- Interval -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Time Interval</label>
+                        <select id="interval" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            <option value="1h" selected>1 Hour</option>
+                            <option value="4h">4 Hours</option>
+                            <option value="1d">1 Day</option>
+                            <option value="15m">15 Minutes</option>
+                            <option value="30m">30 Minutes</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parameter Ranges -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4">Parameter Ranges</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- MACD Fast -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium mb-2">MACD Fast</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-600">Min</label>
+                                <input type="number" id="macdFastMin" value="8" min="1" max="50" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Max</label>
+                                <input type="number" id="macdFastMax" value="16" min="1" max="50" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Step</label>
+                                <input type="number" id="macdFastStep" value="2" min="1" max="10" class="w-full p-2 border rounded">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MACD Slow -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium mb-2">MACD Slow</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-600">Min</label>
+                                <input type="number" id="macdSlowMin" value="20" min="10" max="100" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Max</label>
+                                <input type="number" id="macdSlowMax" value="32" min="10" max="100" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Step</label>
+                                <input type="number" id="macdSlowStep" value="3" min="1" max="10" class="w-full p-2 border rounded">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MACD Signal -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium mb-2">MACD Signal</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-600">Min</label>
+                                <input type="number" id="macdSignalMin" value="6" min="1" max="50" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Max</label>
+                                <input type="number" id="macdSignalMax" value="12" min="1" max="50" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Step</label>
+                                <input type="number" id="macdSignalStep" value="2" min="1" max="10" class="w-full p-2 border rounded">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SMA Length -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium mb-2">SMA Length</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-600">Min</label>
+                                <input type="number" id="smaLengthMin" value="150" min="50" max="500" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Max</label>
+                                <input type="number" id="smaLengthMax" value="250" min="50" max="500" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Step</label>
+                                <input type="number" id="smaLengthStep" value="25" min="5" max="50" class="w-full p-2 border rounded">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TP Base -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium mb-2">TP Base (%)</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-600">Min</label>
+                                <input type="number" id="tpBaseMin" value="0.5" min="0.1" max="5" step="0.1" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Max</label>
+                                <input type="number" id="tpBaseMax" value="1.0" min="0.1" max="5" step="0.1" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Step</label>
+                                <input type="number" id="tpBaseStep" value="0.25" min="0.05" max="1" step="0.05" class="w-full p-2 border rounded">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stop Loss -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium mb-2">Stop Loss (%)</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-600">Min</label>
+                                <input type="number" id="stopLossMin" value="1.0" min="0.5" max="5" step="0.1" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Max</label>
+                                <input type="number" id="stopLossMax" value="2.0" min="0.5" max="5" step="0.1" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Step</label>
+                                <input type="number" id="stopLossStep" value="0.25" min="0.05" max="1" step="0.05" class="w-full p-2 border rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trading Parameters -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4">Trading Parameters</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Initial Balance (USDT)</label>
+                        <input type="number" id="balance" value="10000" min="1000" step="1000" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Leverage</label>
+                        <input type="number" id="leverage" value="10" min="1" max="125" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Margin (%)</label>
+                        <input type="number" id="margin" value="10" min="1" max="100" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimization Estimate -->
+            <div id="optimizationEstimate" class="mb-6 p-4 bg-blue-50 rounded-lg hidden">
+                <h3 class="text-lg font-semibold text-blue-800 mb-2">Optimization Estimate</h3>
+                <div id="estimateContent" class="text-sm text-blue-700">
+                    <!-- Estimate content will be populated here -->
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="flex space-x-4 mb-6">
+                <button id="getEstimate" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200">
+                    Get Estimate
+                </button>
+                <button id="startPerCoinOptimization" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition duration-200">
+                    Start Bulk Optimization
+                </button>
+                <button id="startForceOptimization" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg transition duration-200">
+                    Force Re-optimize All
+                </button>
+                <button id="stopPerCoinOptimization" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition duration-200 hidden">
+                    Stop Optimization
+                </button>
+            </div>
+            
+            <!-- Skip Info -->
+            <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <h4 class="font-semibold text-yellow-800 mb-2">📊 Smart Optimization Mode</h4>
+                <ul class="text-sm text-yellow-700 space-y-1">
+                    <li>• <strong>Start Bulk Optimization:</strong> Skip coins that already have optimization results</li>
+                    <li>• <strong>Force Re-optimize All:</strong> Re-optimize all coins regardless of existing results</li>
+                    <li>• <strong>Smart Skip:</strong> Automatically continues from where you left off</li>
+                    <li>• <strong>Time Saving:</strong> Only optimize coins that need optimization</li>
+                </ul>
+            </div>
+
+            <!-- Progress Section -->
+            <div id="perCoinProgressSection" class="hidden">
+                <h3 class="text-lg font-semibold mb-4">Optimization Progress</h3>
+                
+                <!-- Overall Progress -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700">Overall Progress</span>
+                        <span id="overallProgressText" class="text-sm text-gray-600">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div id="overallProgressBar" class="progress-bar bg-blue-600 h-3 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Current Symbol Progress -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700">Current Symbol: <span id="currentSymbol">-</span></span>
+                        <span id="currentSymbolProgressText" class="text-sm text-gray-600">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="currentSymbolProgressBar" class="progress-bar bg-green-600 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div class="bg-green-50 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-green-600" id="completedCount">0</div>
+                        <div class="text-sm text-green-700">Completed</div>
+                    </div>
+                    <div class="bg-red-50 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-red-600" id="failedCount">0</div>
+                        <div class="text-sm text-red-700">Failed</div>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="totalSymbols">0</div>
+                        <div class="text-sm text-blue-700">Total Symbols</div>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-purple-600" id="totalCombinations">0</div>
+                        <div class="text-sm text-purple-700">Combinations/Symbol</div>
+                    </div>
+                </div>
+
+                <!-- Recent Results -->
+                <div id="recentResults" class="mb-4">
+                    <h4 class="font-medium mb-2">Recent Completions</h4>
+                    <div id="recentResultsList" class="space-y-2 max-h-40 overflow-y-auto">
+                        <!-- Recent results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="bg-white rounded-lg shadow-lg p-6 hidden">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Optimization Results</h2>
+            
+            <!-- Results Summary -->
+            <div id="resultsSummary" class="mb-6">
+                <!-- Summary will be populated here -->
+            </div>
+
+            <!-- Results Table -->
+            <div class="overflow-x-auto">
+                <table id="resultsTable" class="min-w-full table-auto">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Symbol</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Score</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Return (%)</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Win Rate (%)</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Trades</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Max DD (%)</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Best Parameters</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <!-- Results will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let perCoinOptimizationRunning = false;
+        let statusPollingInterval;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setDefaultDates();
+            bindEvents();
+            checkInitialStatus();
+        });
+
+        function setDefaultDates() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 3); // 3 months back
+            
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        }
+
+        function bindEvents() {
+            document.getElementById('symbolSelection').addEventListener('change', function() {
+                const customDiv = document.getElementById('customSymbolsDiv');
+                if (this.value === 'custom') {
+                    customDiv.classList.remove('hidden');
+                } else {
+                    customDiv.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('getEstimate').addEventListener('click', getOptimizationEstimate);
+            document.getElementById('startPerCoinOptimization').addEventListener('click', startPerCoinOptimization);
+            document.getElementById('startForceOptimization').addEventListener('click', startForceOptimization);
+            document.getElementById('stopPerCoinOptimization').addEventListener('click', stopPerCoinOptimization);
+        }
+
+        async function getOptimizationEstimate() {
+            try {
+                const params = getOptimizationParams();
+                
+                const response = await fetch('/api/per-coin-optimizer/estimate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayEstimate(data.data);
+                } else {
+                    alert('Error getting estimate: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error getting estimate:', error);
+                alert('Error getting estimate');
+            }
+        }
+
+        function displayEstimate(estimate) {
+            const estimateDiv = document.getElementById('optimizationEstimate');
+            const contentDiv = document.getElementById('estimateContent');
+
+            contentDiv.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <strong>Total Symbols:</strong> ${estimate.total_symbols}<br>
+                        <strong>Combinations per Symbol:</strong> ${estimate.combinations_per_symbol}<br>
+                        <strong>Total Combinations:</strong> ${estimate.total_combinations.toLocaleString()}
+                    </div>
+                    <div>
+                        <strong>Max Workers:</strong> ${estimate.max_workers}<br>
+                        <strong>Estimated Time:</strong> ${estimate.estimated_time.formatted}<br>
+                        <strong>Symbols Preview:</strong> ${estimate.symbols_preview.join(', ')}
+                    </div>
+                </div>
+            `;
+
+            estimateDiv.classList.remove('hidden');
+        }
+
+        async function startPerCoinOptimization() {
+            try {
+                const params = getOptimizationParams();
+                
+                const response = await fetch('/api/per-coin-optimizer/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    perCoinOptimizationRunning = true;
+                    updatePerCoinUI();
+                    startStatusPolling();
+                    alert('Per-coin optimization started successfully!');
+                } else {
+                    alert('Error starting optimization: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error starting optimization:', error);
+                alert('Error starting optimization');
+            }
+        }
+        
+        async function startForceOptimization() {
+            try {
+                if (!confirm('This will re-optimize ALL selected coins, including those with existing results. Continue?')) {
+                    return;
+                }
+                
+                const params = getOptimizationParams();
+                
+                const response = await fetch('/api/per-coin-optimizer/start-force', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    perCoinOptimizationRunning = true;
+                    updatePerCoinUI();
+                    startStatusPolling();
+                    alert('Force per-coin optimization started successfully!');
+                } else {
+                    alert('Error starting force optimization: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error starting force optimization:', error);
+                alert('Error starting force optimization');
+            }
+        }
+
+        async function stopPerCoinOptimization() {
+            try {
+                const response = await fetch('/api/per-coin-optimizer/stop', { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    perCoinOptimizationRunning = false;
+                    updatePerCoinUI();
+                    stopStatusPolling();
+                    alert('Optimization stopped successfully');
+                } else {
+                    alert('Error stopping optimization: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error stopping optimization:', error);
+                alert('Error stopping optimization');
+            }
+        }
+
+        function getOptimizationParams() {
+            const symbolSelection = document.getElementById('symbolSelection').value;
+            let symbols = [];
+            
+            if (symbolSelection === 'custom') {
+                const customSymbols = document.getElementById('customSymbols').value;
+                symbols = customSymbols.split(',').map(s => s.trim().toUpperCase()).filter(s => s);
+            }
+
+            return {
+                symbol_selection: symbolSelection,
+                symbols: symbols,
+                interval: document.getElementById('interval').value,
+                start_date: document.getElementById('startDate').value,
+                end_date: document.getElementById('endDate').value,
+                max_workers: parseInt(document.getElementById('maxWorkers').value),
+                param_ranges: {
+                    macd_fast: {
+                        min: parseInt(document.getElementById('macdFastMin').value),
+                        max: parseInt(document.getElementById('macdFastMax').value),
+                        step: parseInt(document.getElementById('macdFastStep').value)
+                    },
+                    macd_slow: {
+                        min: parseInt(document.getElementById('macdSlowMin').value),
+                        max: parseInt(document.getElementById('macdSlowMax').value),
+                        step: parseInt(document.getElementById('macdSlowStep').value)
+                    },
+                    macd_signal: {
+                        min: parseInt(document.getElementById('macdSignalMin').value),
+                        max: parseInt(document.getElementById('macdSignalMax').value),
+                        step: parseInt(document.getElementById('macdSignalStep').value)
+                    },
+                    sma_length: {
+                        min: parseInt(document.getElementById('smaLengthMin').value),
+                        max: parseInt(document.getElementById('smaLengthMax').value),
+                        step: parseInt(document.getElementById('smaLengthStep').value)
+                    },
+                    tp_base: {
+                        min: parseFloat(document.getElementById('tpBaseMin').value),
+                        max: parseFloat(document.getElementById('tpBaseMax').value),
+                        step: parseFloat(document.getElementById('tpBaseStep').value)
+                    },
+                    stop_loss: {
+                        min: parseFloat(document.getElementById('stopLossMin').value),
+                        max: parseFloat(document.getElementById('stopLossMax').value),
+                        step: parseFloat(document.getElementById('stopLossStep').value)
+                    }
+                },
+                trading_params: {
+                    balance: parseFloat(document.getElementById('balance').value),
+                    leverage: parseFloat(document.getElementById('leverage').value),
+                    margin: parseFloat(document.getElementById('margin').value),
+                    max_tps: 10,
+                    tp_close: 25
+                }
+            };
+        }
+
+        function updatePerCoinUI() {
+            const startBtn = document.getElementById('startPerCoinOptimization');
+            const forceBtn = document.getElementById('startForceOptimization');
+            const stopBtn = document.getElementById('stopPerCoinOptimization');
+            const statusIndicator = document.getElementById('perCoinStatus');
+            const statusText = document.getElementById('perCoinStatusText');
+            const progressSection = document.getElementById('perCoinProgressSection');
+
+            if (perCoinOptimizationRunning) {
+                startBtn.classList.add('hidden');
+                forceBtn.classList.add('hidden');
+                stopBtn.classList.remove('hidden');
+                statusIndicator.className = 'status-indicator status-running';
+                statusText.textContent = 'Running';
+                progressSection.classList.remove('hidden');
+            } else {
+                startBtn.classList.remove('hidden');
+                forceBtn.classList.remove('hidden');
+                stopBtn.classList.add('hidden');
+                statusIndicator.className = 'status-indicator status-stopped';
+                statusText.textContent = 'Stopped';
+                progressSection.classList.add('hidden');
+            }
+        }
+
+        function startStatusPolling() {
+            statusPollingInterval = setInterval(fetchPerCoinStatus, 5000); // Every 5 seconds
+            fetchPerCoinStatus(); // Initial fetch
+        }
+
+        function stopStatusPolling() {
+            if (statusPollingInterval) {
+                clearInterval(statusPollingInterval);
+            }
+        }
+
+        async function fetchPerCoinStatus() {
+            try {
+                const response = await fetch('/api/per-coin-optimizer/status');
+                const data = await response.json();
+
+                if (data.success) {
+                    updateStatusDisplay(data.data);
+                    
+                    // Update global state
+                    if (perCoinOptimizationRunning !== data.data.is_running) {
+                        perCoinOptimizationRunning = data.data.is_running;
+                        updatePerCoinUI();
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching status:', error);
+            }
+        }
+
+        function updateStatusDisplay(status) {
+            // Update progress bars
+            document.getElementById('overallProgressText').textContent = `${status.overall_progress}%`;
+            document.getElementById('overallProgressBar').style.width = `${status.overall_progress}%`;
+
+            // Update current symbol progress
+            document.getElementById('currentSymbol').textContent = status.current_symbol || '-';
+            if (status.total_combinations > 0) {
+                const currentProgress = (status.current_symbol_progress / status.total_combinations) * 100;
+                document.getElementById('currentSymbolProgressText').textContent = `${currentProgress.toFixed(1)}%`;
+                document.getElementById('currentSymbolProgressBar').style.width = `${currentProgress}%`;
+            }
+
+            // Update statistics
+            document.getElementById('completedCount').textContent = status.completed_symbols;
+            document.getElementById('failedCount').textContent = status.failed_symbols;
+            document.getElementById('totalSymbols').textContent = status.total_symbols;
+            document.getElementById('totalCombinations').textContent = status.total_combinations;
+
+            // Update recent results
+            updateRecentResults(status.recent_results || []);
+
+            // Show results section if optimization is complete
+            if (!status.is_running && status.best_results_count > 0) {
+                showResults();
+            }
+        }
+
+        function updateRecentResults(recentResults) {
+            const listDiv = document.getElementById('recentResultsList');
+            
+            if (recentResults.length === 0) {
+                listDiv.innerHTML = '<div class="text-gray-500 text-sm">No results yet...</div>';
+                return;
+            }
+
+            listDiv.innerHTML = recentResults.map(([symbol, result]) => `
+                <div class="result-card bg-gray-50 p-3 rounded-lg">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">${symbol}</span>
+                        <div class="text-right">
+                            <div class="text-sm font-bold text-green-600">Score: ${result.score}</div>
+                            <div class="text-xs text-gray-600">Return: ${result.total_return.toFixed(2)}%</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function showResults() {
+            // This would fetch and display final results
+            document.getElementById('resultsSection').classList.remove('hidden');
+        }
+
+        async function checkInitialStatus() {
+            try {
+                const response = await fetch('/api/per-coin-optimizer/status');
+                const data = await response.json();
+
+                if (data.success && data.data.is_running) {
+                    perCoinOptimizationRunning = true;
+                    updatePerCoinUI();
+                    startStatusPolling();
+                }
+            } catch (error) {
+                console.error('Error checking initial status:', error);
+            }
+        }
+    </script>
+</body>
+</html>

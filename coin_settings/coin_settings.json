@@ -1,0 +1,782 @@
+{
+  "1000000BOBUSDT": {
+    "strategy_params": {
+      "macd_fast": 20,
+      "macd_slow": 35,
+      "macd_signal": 12,
+      "sma_length": 225
+    },
+    "tp_sl_params": {
+      "tp_base": 0.9,
+      "stop_loss": 1.5,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 24.49,
+    "optimization_date": "2025-08-03T06:38:40.371716",
+    "backtest_stats": {
+      "total_return": 674.6710506466763,
+      "win_rate": 93.47826086956522,
+      "total_trades": 46,
+      "max_drawdown": 19.44893158278427,
+      "profit_factor": 4.512637268413752,
+      "sharpe_ratio": 1.4945
+    },
+    "last_updated": "2025-08-03T06:38:40.371716",
+    "symbol": "1000000BOBUSDT"
+  },
+  "1000000MOGUSDT": {
+    "strategy_params": {
+      "macd_fast": 12,
+      "macd_slow": 35,
+      "macd_signal": 12,
+      "sma_length": 250
+    },
+    "tp_sl_params": {
+      "tp_base": 0.9,
+      "stop_loss": 1.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 23.99,
+    "optimization_date": "2025-08-03T13:59:02.480324",
+    "backtest_stats": {
+      "total_return": 4079.879835304176,
+      "win_rate": 90.0,
+      "total_trades": 140,
+      "max_drawdown": 42.8408054362507,
+      "profit_factor": 3.244922945044017,
+      "sharpe_ratio": 1.0319
+    },
+    "last_updated": "2025-08-03T13:59:02.480324",
+    "symbol": "1000000MOGUSDT"
+  },
+  "1000BONKUSDT": {
+    "strategy_params": {
+      "macd_fast": 20,
+      "macd_slow": 32,
+      "macd_signal": 10,
+      "sma_length": 250
+    },
+    "tp_sl_params": {
+      "tp_base": 0.6,
+      "stop_loss": 1.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 24.19,
+    "optimization_date": "2025-08-03T20:21:26.691801",
+    "backtest_stats": {
+      "total_return": 844.5945014683165,
+      "win_rate": 86.04651162790698,
+      "total_trades": 129,
+      "max_drawdown": 34.70960057569595,
+      "profit_factor": 2.8303267458934416,
+      "sharpe_ratio": 0.8138
+    },
+    "last_updated": "2025-08-03T20:21:26.691801",
+    "symbol": "1000BONKUSDT"
+  },
+  "1000CATUSDT": {
+    "strategy_params": {
+      "macd_fast": 18,
+      "macd_slow": 38,
+      "macd_signal": 8,
+      "sma_length": 150
+    },
+    "tp_sl_params": {
+      "tp_base": 0.6,
+      "stop_loss": 1.5,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 24.36,
+    "optimization_date": "2025-08-04T03:19:11.283442",
+    "backtest_stats": {
+      "total_return": 933.369646127139,
+      "win_rate": 88.9763779527559,
+      "total_trades": 127,
+      "max_drawdown": 32.76483086072535,
+      "profit_factor": 2.3983878106349263,
+      "sharpe_ratio": 0.8346
+    },
+    "last_updated": "2025-08-04T03:19:11.283442",
+    "symbol": "1000CATUSDT"
+  },
+  "1000CHEEMSUSDT": {
+    "strategy_params": {
+      "macd_fast": 16,
+      "macd_slow": 29,
+      "macd_signal": 7,
+      "sma_length": 150
+    },
+    "tp_sl_params": {
+      "tp_base": 0.8,
+      "stop_loss": 1.25,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 23.43,
+    "optimization_date": "2025-08-01T04:23:37.960093",
+    "backtest_stats": {
+      "total_return": 517.828389161796,
+      "win_rate": 90.47619047619048,
+      "total_trades": 42,
+      "max_drawdown": 42.54649633665227,
+      "profit_factor": 4.4109115016182985,
+      "sharpe_ratio": 0.7079
+    },
+    "last_updated": "2025-08-01T04:23:37.960093",
+    "symbol": "1000CHEEMSUSDT"
+  },
+  "1000FLOKIUSDT": {
+    "strategy_params": {
+      "macd_fast": 16,
+      "macd_slow": 29,
+      "macd_signal": 11,
+      "sma_length": 250
+    },
+    "tp_sl_params": {
+      "tp_base": 0.6,
+      "stop_loss": 2.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 24.47,
+    "optimization_date": "2025-08-01T06:05:37.803867",
+    "backtest_stats": {
+      "total_return": 2559.896336521738,
+      "win_rate": 92.6829268292683,
+      "total_trades": 164,
+      "max_drawdown": 32.86600895702585,
+      "profit_factor": 2.5242882724293887,
+      "sharpe_ratio": 1.1408
+    },
+    "last_updated": "2025-08-01T06:05:37.803867",
+    "symbol": "1000FLOKIUSDT"
+  },
+  "1000LUNCUSDT": {
+    "strategy_params": {
+      "macd_fast": 10,
+      "macd_slow": 20,
+      "macd_signal": 9,
+      "sma_length": 225
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 2.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 23.92,
+    "optimization_date": "2025-08-01T07:44:15.926008",
+    "backtest_stats": {
+      "total_return": 1471.9913510079173,
+      "win_rate": 89.58333333333334,
+      "total_trades": 192,
+      "max_drawdown": 44.24807609882492,
+      "profit_factor": 2.021006901946541,
+      "sharpe_ratio": 1.0855
+    },
+    "last_updated": "2025-08-01T07:44:15.926008",
+    "symbol": "1000LUNCUSDT"
+  },
+  "BTCUSDT": {
+    "strategy_params": {
+      "macd_fast": 16,
+      "macd_slow": 32,
+      "macd_signal": 11,
+      "sma_length": 250
+    },
+    "tp_sl_params": {
+      "tp_base": 0.8,
+      "stop_loss": 1.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 24.72,
+    "optimization_date": "2025-08-03T11:00:31.170696",
+    "backtest_stats": {
+      "total_return": 819.0529680262829,
+      "win_rate": 90.0990099009901,
+      "total_trades": 101,
+      "max_drawdown": 24.481880774813558,
+      "profit_factor": 3.3732231691188423,
+      "sharpe_ratio": 1.1904
+    },
+    "last_updated": "2025-08-03T11:00:31.170696",
+    "symbol": "BTCUSDT"
+  },
+  "ETHUSDT": {
+    "strategy_params": {
+      "macd_fast": 14,
+      "macd_slow": 32,
+      "macd_signal": 10,
+      "sma_length": 150
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 1.25,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 25.02,
+    "optimization_date": "2025-08-03T17:20:00.703484",
+    "backtest_stats": {
+      "total_return": 681.8341502775206,
+      "win_rate": 92.37288135593221,
+      "total_trades": 118,
+      "max_drawdown": 18.737514532933474,
+      "profit_factor": 2.781172887272046,
+      "sharpe_ratio": 1.1011
+    },
+    "last_updated": "2025-08-03T17:20:00.703484",
+    "symbol": "ETHUSDT"
+  },
+  "ADAUSDT": {
+    "strategy_params": {
+      "macd_fast": 8,
+      "macd_slow": 32,
+      "macd_signal": 10,
+      "sma_length": 225
+    },
+    "tp_sl_params": {
+      "tp_base": 1.0,
+      "stop_loss": 1.25,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 23.76,
+    "optimization_date": "2025-08-03T23:57:03.004415",
+    "backtest_stats": {
+      "total_return": 495.96220973852974,
+      "win_rate": 85.45454545454545,
+      "total_trades": 110,
+      "max_drawdown": 41.16984531551512,
+      "profit_factor": 1.8045180630146351,
+      "sharpe_ratio": 0.6851
+    },
+    "last_updated": "2025-08-03T23:57:03.004415",
+    "symbol": "ADAUSDT"
+  },
+  "SOLUSDT": {
+    "strategy_params": {
+      "macd_fast": 12,
+      "macd_slow": 23,
+      "macd_signal": 11,
+      "sma_length": 250
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 1.25,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 24.5,
+    "optimization_date": "2025-08-04T07:39:04.776400",
+    "backtest_stats": {
+      "total_return": 823.6446319827099,
+      "win_rate": 88.44221105527639,
+      "total_trades": 199,
+      "max_drawdown": 28.857808468289036,
+      "profit_factor": 2.3497350198137483,
+      "sharpe_ratio": 0.8276
+    },
+    "last_updated": "2025-08-04T07:39:04.776400",
+    "symbol": "SOLUSDT"
+  },
+  "1000SATSUSDT": {
+    "strategy_params": {
+      "macd_fast": 14,
+      "macd_slow": 20,
+      "macd_signal": 12,
+      "sma_length": 225
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 1.25,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": -0.98,
+    "optimization_date": "2025-08-06T03:39:59.032006",
+    "backtest_stats": {
+      "total_return": -101.9384310522169,
+      "win_rate": 88.63636363636364,
+      "total_trades": 44,
+      "max_drawdown": 100.00737030260936,
+      "profit_factor": 0.9962062720260934,
+      "sharpe_ratio": 0.5737
+    },
+    "last_updated": "2025-08-06T03:39:59.032006",
+    "symbol": "1000SATSUSDT"
+  },
+  "1000RATSUSDT": {
+    "strategy_params": {
+      "macd_fast": 10,
+      "macd_slow": 20,
+      "macd_signal": 12,
+      "sma_length": 200
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 1.5,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": -1.36,
+    "optimization_date": "2025-08-06T04:05:58.914563",
+    "backtest_stats": {
+      "total_return": -100.05411212847342,
+      "win_rate": 82.35294117647058,
+      "total_trades": 17,
+      "max_drawdown": 100.05383804124199,
+      "profit_factor": 0.002086281785285049,
+      "sharpe_ratio": -0.5013
+    },
+    "last_updated": "2025-08-06T04:05:58.914563",
+    "symbol": "1000RATSUSDT"
+  },
+  "ACEUSDT": {
+    "strategy_params": {
+      "macd_fast": 16,
+      "macd_slow": 23,
+      "macd_signal": 10,
+      "sma_length": 175
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 1.5,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 24.22,
+    "optimization_date": "2025-08-06T04:28:20.645465",
+    "backtest_stats": {
+      "total_return": 23188.31079890476,
+      "win_rate": 97.36842105263158,
+      "total_trades": 38,
+      "max_drawdown": 26.94210105091906,
+      "profit_factor": 496.0189289657558,
+      "sharpe_ratio": 1.293
+    },
+    "last_updated": "2025-08-06T04:28:20.645465",
+    "symbol": "ACEUSDT"
+  },
+  "1MBABYDOGEUSDT": {
+    "strategy_params": {
+      "macd_fast": 12,
+      "macd_slow": 26,
+      "macd_signal": 6,
+      "sma_length": 150
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 1.5,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": -0.8,
+    "optimization_date": "2025-08-06T04:35:26.542339",
+    "backtest_stats": {
+      "total_return": -102.4987200468782,
+      "win_rate": 83.54430379746836,
+      "total_trades": 79,
+      "max_drawdown": 100.08531774409582,
+      "profit_factor": 0.9793106403971765,
+      "sharpe_ratio": 0.5022
+    },
+    "last_updated": "2025-08-06T04:35:26.542339",
+    "symbol": "1MBABYDOGEUSDT"
+  },
+  "AAVEUSDT": {
+    "strategy_params": {
+      "macd_fast": 16,
+      "macd_slow": 32,
+      "macd_signal": 12,
+      "sma_length": 250
+    },
+    "tp_sl_params": {
+      "tp_base": 1.0,
+      "stop_loss": 1.25,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": -0.88,
+    "optimization_date": "2025-08-06T04:55:50.101423",
+    "backtest_stats": {
+      "total_return": -100.35171552517417,
+      "win_rate": 89.13043478260869,
+      "total_trades": 46,
+      "max_drawdown": 100.00837311663291,
+      "profit_factor": 0.975849085173551,
+      "sharpe_ratio": 0.5656
+    },
+    "last_updated": "2025-08-06T04:55:50.101423",
+    "symbol": "AAVEUSDT"
+  },
+  "ACTUSDT": {
+    "strategy_params": {
+      "macd_fast": 10,
+      "macd_slow": 23,
+      "macd_signal": 6,
+      "sma_length": 250
+    },
+    "tp_sl_params": {
+      "tp_base": 1.0,
+      "stop_loss": 2.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 22.92,
+    "optimization_date": "2025-08-06T05:10:20.603271",
+    "backtest_stats": {
+      "total_return": 4445.368207549954,
+      "win_rate": 81.25,
+      "total_trades": 48,
+      "max_drawdown": 96.99643707322122,
+      "profit_factor": 5.623547901608587,
+      "sharpe_ratio": 0.3255
+    },
+    "last_updated": "2025-08-06T05:10:20.603271",
+    "symbol": "ACTUSDT"
+  },
+  "ACXUSDT": {
+    "strategy_params": {
+      "macd_fast": 16,
+      "macd_slow": 29,
+      "macd_signal": 12,
+      "sma_length": 175
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 2.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": -1.05,
+    "optimization_date": "2025-08-06T05:22:52.553839",
+    "backtest_stats": {
+      "total_return": -101.00047852117879,
+      "win_rate": 88.23529411764706,
+      "total_trades": 34,
+      "max_drawdown": 100.98639362252497,
+      "profit_factor": 0.03478604689175775,
+      "sharpe_ratio": 0.1949
+    },
+    "last_updated": "2025-08-06T05:22:52.553839",
+    "symbol": "ACXUSDT"
+  },
+  "1000WHYUSDT": {
+    "strategy_params": {
+      "macd_fast": 8,
+      "macd_slow": 23,
+      "macd_signal": 10,
+      "sma_length": 225
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 1.25,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": -1.11,
+    "optimization_date": "2025-08-06T05:26:43.845791",
+    "backtest_stats": {
+      "total_return": -102.41313274596608,
+      "win_rate": 80.7017543859649,
+      "total_trades": 57,
+      "max_drawdown": 100.15668944523554,
+      "profit_factor": 0.9521145554228775,
+      "sharpe_ratio": 0.6588
+    },
+    "last_updated": "2025-08-06T05:26:43.845791",
+    "symbol": "1000WHYUSDT"
+  },
+  "AERGOUSDT": {
+    "strategy_params": {
+      "macd_fast": 12,
+      "macd_slow": 23,
+      "macd_signal": 8,
+      "sma_length": 200
+    },
+    "tp_sl_params": {
+      "tp_base": 1.0,
+      "stop_loss": 2.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": -0.82,
+    "optimization_date": "2025-08-06T05:44:18.899343",
+    "backtest_stats": {
+      "total_return": -100.06022312218784,
+      "win_rate": 81.94444444444444,
+      "total_trades": 72,
+      "max_drawdown": 100.00159954618466,
+      "profit_factor": 0.9798139432207236,
+      "sharpe_ratio": 0.3642
+    },
+    "last_updated": "2025-08-06T05:44:18.899343",
+    "symbol": "AERGOUSDT"
+  },
+  "ACHUSDT": {
+    "strategy_params": {
+      "macd_fast": 14,
+      "macd_slow": 26,
+      "macd_signal": 10,
+      "sma_length": 200
+    },
+    "tp_sl_params": {
+      "tp_base": 1.0,
+      "stop_loss": 1.5,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": -0.44,
+    "optimization_date": "2025-08-06T05:49:24.391509",
+    "backtest_stats": {
+      "total_return": -100.12101042717765,
+      "win_rate": 86.5979381443299,
+      "total_trades": 97,
+      "max_drawdown": 100.00009436821115,
+      "profit_factor": 0.9994765138249112,
+      "sharpe_ratio": 0.7196
+    },
+    "last_updated": "2025-08-06T05:49:24.391509",
+    "symbol": "ACHUSDT"
+  },
+  "1000XUSDT": {
+    "strategy_params": {
+      "macd_fast": 16,
+      "macd_slow": 20,
+      "macd_signal": 8,
+      "sma_length": 150
+    },
+    "tp_sl_params": {
+      "tp_base": 0.75,
+      "stop_loss": 1.5,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": -1.02,
+    "optimization_date": "2025-08-06T05:50:21.770335",
+    "backtest_stats": {
+      "total_return": -100.2690508733525,
+      "win_rate": 85.71428571428571,
+      "total_trades": 42,
+      "max_drawdown": 100.10282413865512,
+      "profit_factor": 0.7258102145829977,
+      "sharpe_ratio": 0.4266
+    },
+    "last_updated": "2025-08-06T05:50:21.770335",
+    "symbol": "1000XUSDT"
+  },
+  "1000PEPEUSDT": {
+    "strategy_params": {
+      "macd_fast": 12,
+      "macd_slow": 32,
+      "macd_signal": 6,
+      "sma_length": 200
+    },
+    "tp_sl_params": {
+      "tp_base": 0.75,
+      "stop_loss": 1.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 5.09,
+    "optimization_date": "2025-08-06T05:54:56.470503",
+    "backtest_stats": {
+      "total_return": 50.52175690728634,
+      "win_rate": 95.23809523809523,
+      "total_trades": 21,
+      "max_drawdown": 94.56158089053552,
+      "profit_factor": 1.5352371407762235,
+      "sharpe_ratio": 0.5983
+    },
+    "last_updated": "2025-08-06T05:54:56.470503",
+    "symbol": "1000PEPEUSDT"
+  },
+  "1INCHUSDT": {
+    "strategy_params": {
+      "macd_fast": 16,
+      "macd_slow": 26,
+      "macd_signal": 10,
+      "sma_length": 225
+    },
+    "tp_sl_params": {
+      "tp_base": 0.75,
+      "stop_loss": 2.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": -0.87,
+    "optimization_date": "2025-08-06T05:58:26.528727",
+    "backtest_stats": {
+      "total_return": -100.15704422063001,
+      "win_rate": 82.08955223880598,
+      "total_trades": 67,
+      "max_drawdown": 100.12085109132789,
+      "profit_factor": 0.5594492511590303,
+      "sharpe_ratio": 0.5518
+    },
+    "last_updated": "2025-08-06T05:58:26.528727",
+    "symbol": "1INCHUSDT"
+  },
+  "1000XECUSDT": {
+    "strategy_params": {
+      "macd_fast": 14,
+      "macd_slow": 20,
+      "macd_signal": 6,
+      "sma_length": 225
+    },
+    "tp_sl_params": {
+      "tp_base": 0.75,
+      "stop_loss": 1.25,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 23.89,
+    "optimization_date": "2025-08-06T06:08:41.545994",
+    "backtest_stats": {
+      "total_return": 3611.126498757529,
+      "win_rate": 100.0,
+      "total_trades": 28,
+      "max_drawdown": 34.77430309891042,
+      "profit_factor": Infinity,
+      "sharpe_ratio": 1.1764
+    },
+    "last_updated": "2025-08-06T06:08:41.545994",
+    "symbol": "1000XECUSDT"
+  },
+  "1000SHIBUSDT": {
+    "strategy_params": {
+      "macd_fast": 14,
+      "macd_slow": 23,
+      "macd_signal": 6,
+      "sma_length": 150
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 1.75,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 23.55,
+    "optimization_date": "2025-08-06T06:11:40.930090",
+    "backtest_stats": {
+      "total_return": 36378.69362757607,
+      "win_rate": 94.44444444444444,
+      "total_trades": 54,
+      "max_drawdown": 45.681150987807776,
+      "profit_factor": 51.910868932029764,
+      "sharpe_ratio": 1.2681
+    },
+    "last_updated": "2025-08-06T06:11:40.930090",
+    "symbol": "1000SHIBUSDT"
+  },
+  "AEROUSDT": {
+    "strategy_params": {
+      "macd_fast": 14,
+      "macd_slow": 32,
+      "macd_signal": 6,
+      "sma_length": 175
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 1.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 23.51,
+    "optimization_date": "2025-08-06T06:38:55.118415",
+    "backtest_stats": {
+      "total_return": 584.754325557294,
+      "win_rate": 100.0,
+      "total_trades": 15,
+      "max_drawdown": 40.88504936530324,
+      "profit_factor": Infinity,
+      "sharpe_ratio": 0.8238
+    },
+    "last_updated": "2025-08-06T06:38:55.118415",
+    "symbol": "AEROUSDT"
+  },
+  "AGTUSDT": {
+    "strategy_params": {
+      "macd_fast": 8,
+      "macd_slow": 20,
+      "macd_signal": 6,
+      "sma_length": 200
+    },
+    "tp_sl_params": {
+      "tp_base": 1.0,
+      "stop_loss": 1.5,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 24.15,
+    "optimization_date": "2025-08-06T07:21:10.463404",
+    "backtest_stats": {
+      "total_return": 575.2193216808582,
+      "win_rate": 100.0,
+      "total_trades": 15,
+      "max_drawdown": 24.964426525953815,
+      "profit_factor": Infinity,
+      "sharpe_ratio": 1.9515
+    },
+    "last_updated": "2025-08-06T07:21:10.463404",
+    "symbol": "AGTUSDT"
+  },
+  "AEVOUSDT": {
+    "strategy_params": {
+      "macd_fast": 10,
+      "macd_slow": 23,
+      "macd_signal": 6,
+      "sma_length": 150
+    },
+    "tp_sl_params": {
+      "tp_base": 0.5,
+      "stop_loss": 1.25,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 23.71,
+    "optimization_date": "2025-08-06T07:45:56.546462",
+    "backtest_stats": {
+      "total_return": 5162.422631501689,
+      "win_rate": 96.875,
+      "total_trades": 32,
+      "max_drawdown": 38.01060761142644,
+      "profit_factor": 98.3601351079634,
+      "sharpe_ratio": 0.9422
+    },
+    "last_updated": "2025-08-06T07:45:56.546462",
+    "symbol": "AEVOUSDT"
+  },
+  "AGLDUSDT": {
+    "strategy_params": {
+      "macd_fast": 14,
+      "macd_slow": 20,
+      "macd_signal": 6,
+      "sma_length": 150
+    },
+    "tp_sl_params": {
+      "tp_base": 1.0,
+      "stop_loss": 2.0,
+      "max_tps": 10,
+      "tp_close": 25
+    },
+    "optimization_score": 23.7,
+    "optimization_date": "2025-08-06T07:49:20.527640",
+    "backtest_stats": {
+      "total_return": 13171.24193920176,
+      "win_rate": 100.0,
+      "total_trades": 34,
+      "max_drawdown": 40.94660129142888,
+      "profit_factor": Infinity,
+      "sharpe_ratio": 1.0969
+    },
+    "last_updated": "2025-08-06T07:49:20.527640",
+    "symbol": "AGLDUSDT"
+  }
+}

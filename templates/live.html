@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Scanner - Crypto Signal Bot</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-running { background-color: #10b981; animation: pulse 2s infinite; }
+        .status-stopped { background-color: #ef4444; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .api-key-input {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">Live Scanner</h1>
+            <div class="flex space-x-4">
+                <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                    Backtest
+                </a>
+                <a href="/optimizer" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                    Optimizer
+                </a>
+            </div>
+        </div>
+
+        <!-- Binance API Configuration -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Binance API Configuration</h2>
+            
+            <!-- Environment Status -->
+            <div id="binanceEnvStatus" class="mb-4 p-3 bg-gray-50 rounded-lg">
+                <div class="text-sm text-gray-600">Loading Binance API configuration...</div>
+            </div>
+            
+            <!-- API Key Input -->
+            <div id="manualBinanceConfig" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Binance API Key</label>
+                <input type="text" id="apiKey" placeholder="Enter your Binance API Key (64 characters)" 
+                       class="api-key-input w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                <p class="text-xs text-gray-500 mt-1">Your API key should be exactly 64 characters long</p>
+                
+                <label class="block text-sm font-medium text-gray-700 mb-2">Binance API Secret</label>
+                <input type="password" id="apiSecret" placeholder="Enter your Binance API Secret (64 characters)" 
+                       class="api-key-input w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                <p class="text-xs text-gray-500 mt-1">Your API secret should be exactly 64 characters long</p>
+            </div>
+            
+            <!-- API Setup Instructions -->
+            <!-- Connection Status -->
+            <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <span id="connectionStatus" class="status-indicator status-stopped"></span>
+                        <span class="text-sm text-gray-600">Status: <span id="connectionStatusText">Not Connected</span></span>
+                    </div>
+                    <div class="text-sm text-gray-500" id="connectionDetails">
+                        Enter your Binance API credentials for live trading
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Control Buttons -->
+            <div class="flex space-x-4">
+                <button id="connectApi" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition duration-200">
+                    Connect to Binance
+                </button>
+                <button id="testConnection" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200" disabled>
+                    Test Connection
+                </button>
+            </div>
+        </div>
+
+        <!-- Trading Settings -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Trading Settings</h2>
+            
+            <!-- Trading Mode Selection -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4">Trading Mode</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 border border-gray-300 rounded-lg">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <input type="radio" id="manualTrading" name="tradingMode" value="manual" checked class="text-blue-600">
+                            <label for="manualTrading" class="font-medium text-gray-700">Manual Trading</label>
+                        </div>
+                        <p class="text-sm text-gray-600">Click Entry button to execute trades manually</p>
+                        <div class="mt-3 space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span>Leverage:</span>
+                                <input type="number" id="manualLeverage" value="10" min="1" max="125" class="w-16 p-1 border rounded text-center">
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>Margin (%):</span>
+                                <input type="number" id="manualMargin" value="50" min="1" max="100" class="w-16 p-1 border rounded text-center">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-300 rounded-lg">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <input type="radio" id="autoTrading" name="tradingMode" value="auto" class="text-green-600">
+                            <label for="autoTrading" class="font-medium text-gray-700">Auto Trading</label>
+                        </div>
+                        <p class="text-sm text-gray-600">Automatically execute trades based on criteria</p>
+                        <div class="mt-3 space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span>Max Symbols:</span>
+                                <input type="number" id="autoMaxSymbols" value="1" min="1" max="5" class="w-16 p-1 border rounded text-center">
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>Leverage:</span>
+                                <input type="number" id="autoLeverage" value="10" min="1" max="125" class="w-16 p-1 border rounded text-center">
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>Margin (%):</span>
+                                <input type="number" id="autoMargin" value="50" min="1" max="100" class="w-16 p-1 border rounded text-center">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Auto Trading Criteria -->
+            <div id="autoTradingCriteria" class="mb-6 hidden">
+                <h3 class="text-lg font-semibold mb-4">Auto Trading Criteria</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Min Win Rate (%)</label>
+                        <input type="number" id="minWinRate" value="80" min="50" max="100" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Min PnL (%)</label>
+                        <input type="number" id="minPnl" value="100" min="0" max="1000" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max Drawdown (%)</label>
+                        <input type="number" id="maxDrawdown" value="60" min="10" max="100" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trading Status -->
+            <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <span id="tradingStatus" class="status-indicator status-stopped"></span>
+                        <span class="text-sm text-gray-600">Trading: <span id="tradingStatusText">Disabled</span></span>
+                    </div>
+                    <div class="text-sm text-gray-500" id="tradingDetails">
+                        Configure API and enable trading mode
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Control Buttons -->
+            <div class="flex space-x-4">
+                <button id="saveTradingSettings" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200">
+                    Save Trading Settings
+                </button>
+                <button id="viewPositions" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition duration-200" disabled>
+                    View Positions
+                </button>
+            </div>
+        </div>
+
+        <!-- Telegram Configuration -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700">Telegram Configuration</h2>
+            
+            <!-- Environment Status -->
+            <div id="telegramEnvStatus" class="mb-4 p-3 bg-gray-50 rounded-lg">
+                <div class="text-sm text-gray-600">Loading Telegram configuration...</div>
+            </div>
+            
+            <!-- Telegram Setup Instructions -->
+            <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-2">📱 Telegram Setup Instructions</h4>
+                <div class="text-sm text-blue-700 space-y-1">
+                    <p><strong>Step 1:</strong> Create bot with @BotFather on Telegram</p>
+                    <p><strong>Step 2:</strong> Get your Chat ID from @userinfobot</p>
+                    <p><strong>Step 3:</strong> Add bot to your chat/group</p>
+                    <p><strong>Step 4:</strong> Send /start to the bot</p>
+                    <p><strong>Step 5:</strong> Configure credentials below or in .env file</p>
+                </div>
+            </div>
+            
+            <!-- Manual Configuration (if needed) -->
+            <div id="manualTelegramConfig" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Bot Token</label>
+                        <input type="text" id="telegramBotToken" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz" 
+                               class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Get from @BotFather on Telegram</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Chat ID</label>
+                        <input type="text" id="telegramChatId" placeholder="123456789 or -1001234567890" 
+                               class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Get from @userinfobot on Telegram</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button id="testTelegram" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition duration-200">
+                    Test Telegram
+                </button>
+                <button id="configureBroadcast" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition duration-200">
+                    Configure Broadcast Mode
+                </button>
+            </div>
+        </div>
+
+        <!-- Scanner Configuration -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-700">Enhanced Live Scanner</h2>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <span id="scannerStatus" class="status-indicator status-stopped"></span>
+                        <span class="text-sm text-gray-600">Status: <span id="scannerStatusText">Stopped</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scanner Settings -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Timeframe</label>
+                    <select id="timeframe" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        <option value="1m">1 Minute</option>
+                        <option value="15m">15 Minutes</option>
+                        <option value="30m">30 Minutes</option>
+                        <option value="1h" selected>1 Hour</option>
+                        <option value="4h">4 Hours</option>
+                        <option value="1d">1 Day</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Symbol Selection</label>
+                    <select id="symbolSelection" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        <option value="true" selected>Scan All Popular Symbols</option>
+                        <option value="false">Custom Symbol List</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Min Signal Strength</label>
+                    <input type="number" id="minSignalStrength" value="0.3" min="0.1" max="1.0" step="0.1" 
+                           class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <!-- Custom Symbols (hidden by default) -->
+            <div id="customSymbolsDiv" class="mb-6 hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Custom Symbols (comma separated)</label>
+                <textarea id="customSymbols" placeholder="BTCUSDT,ETHUSDT,ADAUSDT,SOLUSDT,DOTUSDT" rows="3" 
+                          class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="flex space-x-4">
+                <button id="startScanner" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition duration-200">
+                    Start Scanner
+                </button>
+                <button id="stopScanner" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition duration-200 hidden">
+                    Stop Scanner
+                </button>
+            </div>
+        </div>
+
+        <!-- Scanner Status -->
+        <div id="scannerStatusPanel" class="bg-white rounded-lg shadow-lg p-6 hidden">
+            <h3 class="text-xl font-semibold mb-4 text-gray-700">Scanner Status</h3>
+            <div id="scannerStatusContent">
+                <!-- Status content will be populated here -->
+            </div>
+        </div>
+
+        <!-- Active Positions Panel -->
+        <div id="positionsPanel" class="bg-white rounded-lg shadow-lg p-6 hidden">
+            <h3 class="text-xl font-semibold mb-4 text-gray-700">Active Positions</h3>
+            <div id="positionsContent">
+                <!-- Positions content will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scannerRunning = false;
+        let statusPollingInterval;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTelegramEnvStatus();
+            loadBinanceEnvStatus();
+            bindEvents();
+        });
+
+        function bindEvents() {
+            // API Connection
+            document.getElementById('connectApi').addEventListener('click', connectToApi);
+            document.getElementById('testConnection').addEventListener('click', testApiConnection);
+            
+            // Telegram
+            document.getElementById('testTelegram').addEventListener('click', testTelegram);
+            document.getElementById('configureBroadcast').addEventListener('click', configureBroadcastMode);
+            
+            // Scanner
+            document.getElementById('startScanner').addEventListener('click', startScanner);
+            document.getElementById('stopScanner').addEventListener('click', stopScanner);
+            
+            // Trading
+            document.getElementById('saveTradingSettings').addEventListener('click', saveTradingSettings);
+            document.getElementById('viewPositions').addEventListener('click', viewPositions);
+            
+            // Trading mode change
+            document.querySelectorAll('input[name="tradingMode"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const autoTradingCriteria = document.getElementById('autoTradingCriteria');
+                    if (this.value === 'auto') {
+                        autoTradingCriteria.classList.remove('hidden');
+                    } else {
+                        autoTradingCriteria.classList.add('hidden');
+                    }
+                });
+            });
+            
+            // Symbol selection change
+            document.getElementById('symbolSelection').addEventListener('change', function() {
+                const customDiv = document.getElementById('customSymbolsDiv');
+                if (this.value === 'false') {
+                    customDiv.classList.remove('hidden');
+                } else {
+                    customDiv.classList.add('hidden');
+                }
+            });
+        }
+
+        async function connectToApi() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiSecret = document.getElementById('apiSecret').value.trim();
+            
+            if (!apiKey || !apiSecret) {
+                alert('Please enter both API Key and Secret');
+                return;
+            }
+            
+            // Validate API key format
+            if (apiKey.length !== 64) {
+                alert('API Key should be exactly 64 characters long');
+                return;
+            }
+            
+            if (apiSecret.length !== 64) {
+                alert('API Secret should be exactly 64 characters long');
+                return;
+            }
+            
+            try {
+                updateConnectionStatus('connecting', 'Connecting...');
+                
+                const response = await fetch('/api/trading/connect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        api_key: apiKey,
+                        api_secret: apiSecret
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateConnectionStatus('connected', 'Connected to Binance Production API');
+                    document.getElementById('testConnection').disabled = false;
+                    alert('✅ Connected to Binance Production API successfully!');
+                } else {
+                    updateConnectionStatus('error', `Connection failed: ${data.error}`);
+                    alert(`❌ Connection failed: ${data.error}\n\nMake sure to whitelist IP: 104.28.245.128 in your Binance API settings!`);
+                }
+            } catch (error) {
+                updateConnectionStatus('error', `Connection error: ${error.message}`);
+                alert(`❌ Connection error: ${error.message}\n\nCheck your API key permissions and IP whitelist!`);
+            }
+        }
+
+        async function testApiConnection() {
+            try {
+                updateConnectionStatus('testing', 'Testing connection...');
+                
+                const response = await fetch('/api/trading/test', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateConnectionStatus('connected', data.message);
+                    alert(`✅ ${data.message}`);
+                } else {
+                    updateConnectionStatus('error', data.error);
+                    alert(`❌ Test failed: ${data.error}`);
+                }
+            } catch (error) {
+                updateConnectionStatus('error', `Test error: ${error.message}`);
+                alert(`❌ Test error: ${error.message}`);
+            }
+        }
+
+        function updateConnectionStatus(status, message) {
+            const statusIndicator = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('connectionStatusText');
+            const statusDetails = document.getElementById('connectionDetails');
+            
+            statusIndicator.className = 'status-indicator';
+            
+            switch (status) {
+                case 'connected':
+                    statusIndicator.classList.add('status-running');
+                    statusText.textContent = 'Connected';
+                    break;
+                case 'connecting':
+                case 'testing':
+                    statusIndicator.classList.add('status-running');
+                    statusText.textContent = 'Connecting...';
+                    break;
+                case 'error':
+                    statusIndicator.classList.add('status-stopped');
+                    statusText.textContent = 'Error';
+                    break;
+                default:
+                    statusIndicator.classList.add('status-stopped');
+                    statusText.textContent = 'Not Connected';
+            }
+            
+            statusDetails.textContent = message;
+        }
+
+        async function saveTradingSettings() {
+            try {
+                const tradingMode = document.querySelector('input[name="tradingMode"]:checked').value;
+                
+                const settings = {
+                    auto_trading: {
+                        enabled: tradingMode === 'auto',
+                        max_symbols: parseInt(document.getElementById('autoMaxSymbols').value),
+                        leverage: parseInt(document.getElementById('autoLeverage').value),
+                        margin_percent: parseInt(document.getElementById('autoMargin').value),
+                        min_winrate: parseInt(document.getElementById('minWinRate').value),
+                        min_pnl: parseInt(document.getElementById('minPnl').value),
+                        max_drawdown: parseInt(document.getElementById('maxDrawdown').value)
+                    },
+                    manual_trading: {
+                        enabled: tradingMode === 'manual',
+                        leverage: parseInt(document.getElementById('manualLeverage').value),
+                        margin_percent: parseInt(document.getElementById('manualMargin').value)
+                    }
+                };
+                
+                const response = await fetch('/api/trading/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateTradingStatus();
+                    alert('✅ Trading settings saved successfully!');
+                } else {
+                    alert(`❌ Failed to save settings: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`❌ Error saving settings: ${error.message}`);
+            }
+        }
+
+        async function updateTradingStatus() {
+            try {
+                const response = await fetch('/api/trading/settings');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const settings = data.data.settings;
+                    const statusIndicator = document.getElementById('tradingStatus');
+                    const statusText = document.getElementById('tradingStatusText');
+                    const statusDetails = document.getElementById('tradingDetails');
+                    
+                    if (settings.auto_trading.enabled) {
+                        statusIndicator.className = 'status-indicator status-running';
+                        statusText.textContent = 'Auto Trading Enabled';
+                        statusDetails.textContent = `Max symbols: ${settings.auto_trading.max_symbols}, Leverage: ${settings.auto_trading.leverage}x`;
+                    } else if (settings.manual_trading.enabled) {
+                        statusIndicator.className = 'status-indicator status-running';
+                        statusText.textContent = 'Manual Trading Enabled';
+                        statusDetails.textContent = `Leverage: ${settings.manual_trading.leverage}x, Margin: ${settings.manual_trading.margin_percent}%`;
+                    } else {
+                        statusIndicator.className = 'status-indicator status-stopped';
+                        statusText.textContent = 'Trading Disabled';
+                        statusDetails.textContent = 'Enable trading mode to start';
+                    }
+                    
+                    // Enable view positions button if connected
+                    document.getElementById('viewPositions').disabled = !data.data.is_connected;
+                }
+            } catch (error) {
+                console.error('Error updating trading status:', error);
+            }
+        }
+
+        async function viewPositions() {
+            try {
+                const response = await fetch('/api/trading/positions');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayPositions(data.data);
+                    document.getElementById('positionsPanel').classList.remove('hidden');
+                } else {
+                    alert(`❌ Failed to get positions: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`❌ Error getting positions: ${error.message}`);
+            }
+        }
+
+        function displayPositions(positions) {
+            const contentDiv = document.getElementById('positionsContent');
+            
+            if (Object.keys(positions).length === 0) {
+                contentDiv.innerHTML = '<div class="text-gray-500 text-center py-4">No active positions</div>';
+                return;
+            }
+            
+            let positionsHTML = '<div class="space-y-4">';
+            
+            for (const [symbol, position] of Object.entries(positions)) {
+                const pnlClass = position.pnl >= 0 ? 'text-green-600' : 'text-red-600';
+                const sideClass = position.side === 'BUY' ? 'text-blue-600' : 'text-purple-600';
+                
+                positionsHTML += `
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-semibold text-lg">${symbol}</h4>
+                            <button onclick="closePosition('${symbol}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                                Close Position
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                            <div><span class="font-medium">Side:</span> <span class="${sideClass}">${position.side}</span></div>
+                            <div><span class="font-medium">Size:</span> ${position.quantity.toFixed(6)}</div>
+                            <div><span class="font-medium">Entry:</span> $${position.entry_price.toFixed(4)}</div>
+                            <div><span class="font-medium">Leverage:</span> ${position.leverage}x</div>
+                            <div><span class="font-medium">Margin:</span> $${position.margin_used.toFixed(2)}</div>
+                            <div><span class="font-medium">Type:</span> ${position.trade_type}</div>
+                            <div><span class="font-medium">Entry Time:</span> ${new Date(position.entry_time).toLocaleString()}</div>
+                            <div><span class="font-medium">PnL:</span> <span class="${pnlClass}">$${position.pnl ? position.pnl.toFixed(2) : '0.00'}</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            positionsHTML += '</div>';
+            contentDiv.innerHTML = positionsHTML;
+        }
+
+        async function closePosition(symbol) {
+            try {
+                if (!confirm(`Are you sure you want to close position for ${symbol}?`)) {
+                    return;
+                }
+                
+                const response = await fetch('/api/trading/close-position', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        symbol: symbol,
+                        reason: 'Manual close from web interface'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ Position closed for ${symbol}`);
+                    viewPositions(); // Refresh positions
+                } else {
+                    alert(`❌ Failed to close position: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`❌ Error closing position: ${error.message}`);
+            }
+        }
+
+        async function loadTelegramEnvStatus() {
+            try {
+                const response = await fetch('/api/env/telegram');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const config = data.data;
+                    const statusDiv = document.getElementById('telegramEnvStatus');
+                    
+                    if (config.bot_token_configured && config.chat_id_configured) {
+                        statusDiv.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                <span class="status-indicator status-running"></span>
+                                <span class="text-sm text-green-700 font-medium">✅ Telegram configured from .env file</span>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1">
+                                Bot Token: ${config.bot_token_preview} | Chat ID: ${config.chat_id}
+                            </div>
+                        `;
+                    } else {
+                        statusDiv.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                <span class="status-indicator status-stopped"></span>
+                                <span class="text-sm text-red-700 font-medium">❌ Telegram not configured</span>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1">
+                                Please configure TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env file or use manual configuration below
+                            </div>
+                        `;
+                        document.getElementById('manualTelegramConfig').classList.remove('hidden');
+                    }
+                } else {
+                    // Show manual config if API call fails
+                    document.getElementById('telegramEnvStatus').innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <span class="status-indicator status-stopped"></span>
+                            <span class="text-sm text-yellow-700 font-medium">⚠️ Configuration check failed</span>
+                        </div>
+                        <div class="text-xs text-gray-600 mt-1">
+                            Please configure manually below
+                        </div>
+                    `;
+                    document.getElementById('manualTelegramConfig').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading Telegram env status:', error);
+                // Show manual config on error
+                document.getElementById('telegramEnvStatus').innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="status-indicator status-stopped"></span>
+                        <span class="text-sm text-yellow-700 font-medium">⚠️ Configuration check failed</span>
+                    </div>
+                    <div class="text-xs text-gray-600 mt-1">
+                        Please configure manually below
+                    </div>
+                `;
+                document.getElementById('manualTelegramConfig').classList.remove('hidden');
+            }
+            
+            // Also load trading status
+            updateTradingStatus();
+        }
+        
+        async function loadBinanceEnvStatus() {
+            try {
+                const response = await fetch('/api/env/binance');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const config = data.data;
+                    const statusDiv = document.getElementById('binanceEnvStatus');
+                    
+                    if (config.api_key_configured && config.api_secret_configured) {
+                        statusDiv.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                <span class="status-indicator status-running"></span>
+                                <span class="text-sm text-green-700 font-medium">✅ Binance API configured from .env file</span>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1">
+                                API Key: ${config.api_key_preview} | Connected: ${config.is_connected ? 'Yes' : 'No'}
+                            </div>
+                        `;
+                        
+                        // Hide manual config if .env is configured
+                        document.getElementById('manualBinanceConfig').classList.add('hidden');
+                        
+                        // Update connection status
+                        if (config.is_connected) {
+                            updateConnectionStatus('connected', 'Connected via .env configuration');
+                            document.getElementById('testConnection').disabled = false;
+                        }
+                    } else {
+                        statusDiv.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                <span class="status-indicator status-stopped"></span>
+                                <span class="text-sm text-red-700 font-medium">❌ Binance API not configured</span>
+                            </div>
+                            <div class="text-xs text-gray-600 mt-1">
+                                Please configure BINANCE_API_KEY and BINANCE_API_SECRET in .env file or use manual configuration below
+                            </div>
+                        `;
+                        document.getElementById('manualBinanceConfig').classList.remove('hidden');
+                    }
+                } else {
+                    // Show manual config if API call fails
+                    document.getElementById('binanceEnvStatus').innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <span class="status-indicator status-stopped"></span>
+                            <span class="text-sm text-yellow-700 font-medium">⚠️ Configuration check failed</span>
+                        </div>
+                        <div class="text-xs text-gray-600 mt-1">
+                            Please configure manually below
+                        </div>
+                    `;
+                    document.getElementById('manualBinanceConfig').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading Binance env status:', error);
+                document.getElementById('manualBinanceConfig').classList.remove('hidden');
+            }
+        }
+
+        async function testTelegram() {
+            try {
+                const botToken = document.getElementById('telegramBotToken').value.trim();
+                const chatId = document.getElementById('telegramChatId').value.trim();
+                
+                // Skip validation if using .env configuration
+                const telegramEnvStatus = document.getElementById('telegramEnvStatus');
+                const isEnvConfigured = telegramEnvStatus.textContent.includes('✅ Telegram configured from .env file');
+                
+                // Only validate manual inputs if .env is not configured
+                if (!isEnvConfigured) {
+                    if (!botToken && !chatId) {
+                        alert('Please enter Bot Token and Chat ID, or configure them in .env file');
+                        return;
+                    }
+                
+                    // Validate bot token format
+                    if (botToken && (!botToken.includes(':') || botToken.length < 35)) {
+                        alert('Invalid bot token format. Should be like: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz');
+                        return;
+                    }
+                    
+                    // Validate chat ID format
+                    if (chatId && isNaN(chatId)) {
+                        alert('Chat ID must be a number. Get it from @userinfobot on Telegram');
+                        return;
+                    }
+                }
+                
+                const response = await fetch('/api/telegram/test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bot_token: botToken,
+                        chat_id: chatId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✅ Telegram connection successful! Check your Telegram for test message.');
+                } else {
+                    let errorMsg = `❌ Telegram test failed: ${data.error}`;
+                    
+                    if (data.error.includes('chat not found')) {
+                        errorMsg += '\n\n💡 Solutions:\n';
+                        errorMsg += '1. Make sure bot is added to your chat/group\n';
+                        errorMsg += '2. Send /start to the bot first\n';
+                        errorMsg += '3. For groups: Add bot as admin\n';
+                        errorMsg += '4. Get correct chat_id from @userinfobot\n';
+                        errorMsg += '5. Check chat_id format:\n';
+                        errorMsg += '   - Private: 123456789\n';
+                        errorMsg += '   - Group: -123456789\n';
+                        errorMsg += '   - Supergroup: -100123456789';
+                    }
+                    
+                    alert(errorMsg);
+                }
+            } catch (error) {
+                alert(`❌ Telegram test error: ${error.message}\n\nCheck your internet connection and try again.`);
+            }
+        }
+
+        async function configureBroadcastMode() {
+            try {
+                const botToken = document.getElementById('telegramBotToken').value.trim();
+                const chatId = document.getElementById('telegramChatId').value.trim();
+                
+                const response = await fetch('/api/telegram/broadcast-mode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bot_token: botToken,
+                        chat_id: chatId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✅ Bot configured for enhanced broadcast mode! Check your Telegram.');
+                } else {
+                    alert(`❌ Broadcast mode configuration failed: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`❌ Configuration error: ${error.message}`);
+            }
+        }
+
+        async function startScanner() {
+            try {
+                const timeframe = document.getElementById('timeframe').value;
+                const scanAllSymbols = document.getElementById('symbolSelection').value === 'true';
+                const customSymbols = document.getElementById('customSymbols').value.split(',').map(s => s.trim()).filter(s => s);
+                const botToken = document.getElementById('telegramBotToken').value.trim();
+                const chatId = document.getElementById('telegramChatId').value.trim();
+                
+                const response = await fetch('/api/scanner/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        timeframe: timeframe,
+                        scan_all_symbols: scanAllSymbols,
+                        custom_symbols: scanAllSymbols ? [] : customSymbols,
+                        telegram_bot_token: botToken,
+                        telegram_chat_id: chatId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    scannerRunning = true;
+                    updateScannerUI();
+                    startStatusPolling();
+                    alert('✅ Enhanced scanner started successfully!');
+                } else {
+                    alert(`❌ Failed to start scanner: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`❌ Scanner start error: ${error.message}`);
+            }
+        }
+
+        async function stopScanner() {
+            try {
+                const response = await fetch('/api/scanner/stop', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    scannerRunning = false;
+                    updateScannerUI();
+                    stopStatusPolling();
+                    alert('✅ Scanner stopped successfully');
+                } else {
+                    alert(`❌ Failed to stop scanner: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`❌ Scanner stop error: ${error.message}`);
+            }
+        }
+
+        function updateScannerUI() {
+            const startBtn = document.getElementById('startScanner');
+            const stopBtn = document.getElementById('stopScanner');
+            const statusIndicator = document.getElementById('scannerStatus');
+            const statusText = document.getElementById('scannerStatusText');
+            
+            if (scannerRunning) {
+                startBtn.classList.add('hidden');
+                stopBtn.classList.remove('hidden');
+                statusIndicator.className = 'status-indicator status-running';
+                statusText.textContent = 'Running';
+                document.getElementById('scannerStatusPanel').classList.remove('hidden');
+            } else {
+                startBtn.classList.remove('hidden');
+                stopBtn.classList.add('hidden');
+                statusIndicator.className = 'status-indicator status-stopped';
+                statusText.textContent = 'Stopped';
+                document.getElementById('scannerStatusPanel').classList.add('hidden');
+            }
+        }
+
+        function startStatusPolling() {
+            statusPollingInterval = setInterval(fetchScannerStatus, 5000);
+            fetchScannerStatus();
+        }
+
+        function stopStatusPolling() {
+            if (statusPollingInterval) {
+                clearInterval(statusPollingInterval);
+            }
+        }
+
+        async function fetchScannerStatus() {
+            try {
+                const response = await fetch('/api/scanner/status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatusDisplay(data.status);
+                    
+                    if (scannerRunning !== data.status.is_running) {
+                        scannerRunning = data.status.is_running;
+                        updateScannerUI();
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching scanner status:', error);
+            }
+        }
+
+        function updateStatusDisplay(status) {
+            const contentDiv = document.getElementById('scannerStatusContent');
+            
+            // Enhanced status display with connection health
+            const connectionHealth = status.connection_stable ? 
+                '<span class="text-green-600">Stable</span>' : 
+                '<span class="text-yellow-600">Unstable</span>';
+            
+            const lastMessageTime = status.time_since_last_message ? 
+                `${Math.round(status.time_since_last_message)}s ago` : 'N/A';
+            
+            const bufferStatus = status.signal_buffer_size > 0 ? 
+                `<span class="text-blue-600">${status.signal_buffer_size} pending</span>` : 
+                '<span class="text-green-600">Empty</span>';
+            
+            contentDiv.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <div class="text-lg font-bold text-blue-600">${status.symbols_count || 0}</div>
+                        <div class="text-sm text-blue-700">Symbols Monitored</div>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-lg">
+                        <div class="text-lg font-bold text-green-600">${status.symbols_with_data || 0}</div>
+                        <div class="text-sm text-green-700">Symbols with Data</div>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-lg">
+                        <div class="text-lg font-bold text-purple-600">${status.timeframe || 'N/A'}</div>
+                        <div class="text-sm text-purple-700">Timeframe</div>
+                    </div>
+                    <div class="bg-yellow-50 p-3 rounded-lg">
+                        <div class="text-lg font-bold text-yellow-600">${connectionHealth}</div>
+                        <div class="text-sm text-yellow-700">Connection Health</div>
+                    </div>
+                </div>
+                
+                <!-- Connection Details -->
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="text-sm font-medium text-gray-700">WebSocket Status</div>
+                        <div class="text-lg ${status.websocket_running ? 'text-green-600' : 'text-red-600'}">
+                            ${status.websocket_running ? '✅ Connected' : '❌ Disconnected'}
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="text-sm font-medium text-gray-700">Last Message</div>
+                        <div class="text-lg text-gray-600">${lastMessageTime}</div>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="text-sm font-medium text-gray-700">Signal Buffer</div>
+                        <div class="text-lg">${bufferStatus}</div>
+                    </div>
+                </div>
+                
+                ${status.reconnect_attempts > 0 ? `
+                <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div class="text-sm text-yellow-800">
+                        <strong>Reconnection Info:</strong> ${status.reconnect_attempts} attempts made. 
+                        Connection will auto-recover.
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${status.monitored_symbols ? `
+                <div class="mt-4">
+                    <h4 class="font-medium text-gray-700 mb-2">Monitored Symbols:</h4>
+                    <div class="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                        ${status.monitored_symbols.slice(0, 20).join(', ')}${status.monitored_symbols.length > 20 ? '...' : ''}
+                    </div>
+                </div>
+                ` : ''}
+            `;
+        }
+        
+        // Initialize trading status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTradingStatus();
+        });
+    </script>
+</body>
+</html>
